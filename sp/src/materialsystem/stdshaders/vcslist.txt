@@ -1,0 +1,5 @@
+..\..\..\game\hl2\shaders\fxc\post_nightvision_ps30.vcs
+..\..\..\game\hl2\shaders\fxc\PassThrough_vs30.vcs
+..\..\..\game\hl2\shaders\fxc\post_cubic_ps30.vcs
+..\..\..\game\hl2\shaders\fxc\post_chromatic_aberration_ps30.vcs
+..\..\..\game\hl2\shaders\fxc\postproc_vs30.vcs

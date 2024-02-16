@@ -35,7 +35,7 @@ void r_newflashlightCallback_f( IConVar *pConVar, const char *pOldString, float 
 static ConVar r_newflashlight( "r_newflashlight", "1", FCVAR_CHEAT, "", r_newflashlightCallback_f );
 static ConVar r_swingflashlight( "r_swingflashlight", "1", FCVAR_CHEAT );
 static ConVar r_flashlightlockposition( "r_flashlightlockposition", "0", FCVAR_CHEAT );
-static ConVar r_flashlightfov( "r_flashlightfov", "45.0", FCVAR_CHEAT );
+static ConVar r_flashlightfov( "r_flashlightfov", "105", FCVAR_CHEAT );
 static ConVar r_flashlightoffsetx( "r_flashlightoffsetx", "10.0", FCVAR_CHEAT );
 static ConVar r_flashlightoffsety( "r_flashlightoffsety", "-20.0", FCVAR_CHEAT );
 static ConVar r_flashlightoffsetz( "r_flashlightoffsetz", "24.0", FCVAR_CHEAT );
@@ -45,7 +45,7 @@ static ConVar r_flashlightconstant( "r_flashlightconstant", "0.0", FCVAR_CHEAT )
 static ConVar r_flashlightlinear( "r_flashlightlinear", "100.0", FCVAR_CHEAT );
 static ConVar r_flashlightquadratic( "r_flashlightquadratic", "0.0", FCVAR_CHEAT );
 static ConVar r_flashlightvisualizetrace( "r_flashlightvisualizetrace", "0", FCVAR_CHEAT );
-static ConVar r_flashlightambient( "r_flashlightambient", "0.0", FCVAR_CHEAT );
+static ConVar r_flashlightambient( "r_flashlightambient", "4.0", FCVAR_CHEAT );
 static ConVar r_flashlightshadowatten( "r_flashlightshadowatten", "0.35", FCVAR_CHEAT );
 static ConVar r_flashlightladderdist( "r_flashlightladderdist", "40.0", FCVAR_CHEAT );
 #ifndef MAPBASE
@@ -336,13 +336,13 @@ void CFlashlightEffect::UpdateLightNew(const Vector &vecPos, const Vector &vecFo
 	}
 
 	state.m_fConstantAtten = r_flashlightconstant.GetFloat();
-	state.m_Color[0] = 1.0f;
-	state.m_Color[1] = 1.0f;
-	state.m_Color[2] = 1.0f;
+	state.m_Color[0] = 0.25f;
+	state.m_Color[1] = 0.25f;
+	state.m_Color[2] = 0.25f;
 	state.m_Color[3] = r_flashlightambient.GetFloat();
 	state.m_NearZ = r_flashlightnear.GetFloat() + m_flDistMod;	// Push near plane out so that we don't clip the world when the flashlight pulls back 
 	state.m_FarZ = r_flashlightfar.GetFloat();
-	state.m_bEnableShadows = r_flashlightdepthtexture.GetBool();
+	state.m_bEnableShadows = false;
 	state.m_flShadowMapResolution = r_flashlightdepthres.GetInt();
 
 	state.m_pSpotlightTexture = m_FlashlightTexture;
@@ -418,11 +418,15 @@ void CFlashlightEffect::UpdateLightOld(const Vector &vecPos, const Vector &vecDi
 	falloff *= falloff;
 	
 	m_pPointLight->radius = 80;
-	m_pPointLight->color.r = m_pPointLight->color.g = m_pPointLight->color.b = 255 * falloff;
+	m_pPointLight->color.r = 0 * falloff;
+	m_pPointLight->color.b = 100 * falloff;
+	m_pPointLight->color.g = 225 * falloff;
+
+
 	m_pPointLight->color.exponent = 0;
 	
 	// Make it live for a bit
-	m_pPointLight->die = gpGlobals->curtime + 0.2f;
+	m_pPointLight->die = gpGlobals->curtime + 0.25f;
 	
 	// Update list of surfaces we influence
 	render->TouchLight( m_pPointLight );
@@ -531,13 +535,13 @@ void CHeadlightEffect::UpdateLight( const Vector &vecPos, const Vector &vecDir, 
 	state.m_fQuadraticAtten = r_flashlightquadratic.GetFloat();
 	state.m_fLinearAtten = r_flashlightlinear.GetFloat();
 	state.m_fConstantAtten = r_flashlightconstant.GetFloat();
-	state.m_Color[0] = 1.0f;
-	state.m_Color[1] = 1.0f;
-	state.m_Color[2] = 1.0f;
+	state.m_Color[0] = 0.25f;
+	state.m_Color[1] = 0.25f;
+	state.m_Color[2] = 0.25f;
 	state.m_Color[3] = r_flashlightambient.GetFloat();
 	state.m_NearZ = r_flashlightnear.GetFloat();
 	state.m_FarZ = r_flashlightfar.GetFloat();
-	state.m_bEnableShadows = true;
+	state.m_bEnableShadows = false;
 	state.m_pSpotlightTexture = m_FlashlightTexture;
 	state.m_nSpotlightTextureFrame = 0;
 	

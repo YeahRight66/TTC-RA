@@ -1,0 +1,38 @@
+default:  fxctmp9_tmp\post_nightvision_ps30.inc shaders\fxc\post_nightvision_ps30.vcs fxctmp9_tmp\PassThrough_vs30.inc shaders\fxc\PassThrough_vs30.vcs fxctmp9_tmp\post_cubic_ps30.inc shaders\fxc\post_cubic_ps30.vcs fxctmp9_tmp\post_chromatic_aberration_ps30.inc shaders\fxc\post_chromatic_aberration_ps30.vcs fxctmp9_tmp\postproc_vs30.inc shaders\fxc\postproc_vs30.vcs
+
+fxctmp9_tmp\post_nightvision_ps30.inc shaders\fxc\post_nightvision_ps30.vcs: post_nightvision_ps30.fxc common_pragmas.h common_ps_fxc.h common_hlsl_cpp_consts.h common_fxc.h
+	perl ..\..\devtools\bin\fxc_prep.pl   -source "..\.." post_nightvision_ps30.fxc-----post_nightvision_ps30
+	echo post_nightvision_ps30.fxc>> filestocopy.txt
+	echo common_pragmas.h>> filestocopy.txt
+	echo common_ps_fxc.h>> filestocopy.txt
+	echo common_hlsl_cpp_consts.h>> filestocopy.txt
+	echo common_fxc.h>> filestocopy.txt
+
+fxctmp9_tmp\PassThrough_vs30.inc shaders\fxc\PassThrough_vs30.vcs: PassThrough_vs30.fxc common_hlsl_cpp_consts.h common_fxc.h common_pragmas.h common_vs_fxc.h
+	perl ..\..\devtools\bin\fxc_prep.pl   -source "..\.." PassThrough_vs30.fxc-----PassThrough_vs30
+	echo PassThrough_vs30.fxc>> filestocopy.txt
+	echo common_hlsl_cpp_consts.h>> filestocopy.txt
+	echo common_fxc.h>> filestocopy.txt
+	echo common_pragmas.h>> filestocopy.txt
+	echo common_vs_fxc.h>> filestocopy.txt
+
+fxctmp9_tmp\post_cubic_ps30.inc shaders\fxc\post_cubic_ps30.vcs: post_cubic_ps30.fxc 
+	perl ..\..\devtools\bin\fxc_prep.pl   -source "..\.." post_cubic_ps30.fxc-----post_cubic_ps30
+	echo post_cubic_ps30.fxc>> filestocopy.txt
+
+fxctmp9_tmp\post_chromatic_aberration_ps30.inc shaders\fxc\post_chromatic_aberration_ps30.vcs: post_chromatic_aberration_ps30.fxc common_fxc.h common_hlsl_cpp_consts.h common_ps_fxc.h common_pragmas.h
+	perl ..\..\devtools\bin\fxc_prep.pl   -source "..\.." post_chromatic_aberration_ps30.fxc-----post_chromatic_aberration_ps30
+	echo post_chromatic_aberration_ps30.fxc>> filestocopy.txt
+	echo common_fxc.h>> filestocopy.txt
+	echo common_hlsl_cpp_consts.h>> filestocopy.txt
+	echo common_ps_fxc.h>> filestocopy.txt
+	echo common_pragmas.h>> filestocopy.txt
+
+fxctmp9_tmp\postproc_vs30.inc shaders\fxc\postproc_vs30.vcs: postproc_vs30.fxc common_vs_fxc.h common_pragmas.h common_hlsl_cpp_consts.h common_fxc.h
+	perl ..\..\devtools\bin\fxc_prep.pl   -source "..\.." postproc_vs30.fxc-----postproc_vs30
+	echo postproc_vs30.fxc>> filestocopy.txt
+	echo common_vs_fxc.h>> filestocopy.txt
+	echo common_pragmas.h>> filestocopy.txt
+	echo common_hlsl_cpp_consts.h>> filestocopy.txt
+	echo common_fxc.h>> filestocopy.txt
+

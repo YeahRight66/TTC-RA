@@ -66,8 +66,12 @@ $Project
 		$File	"depthoffield_dx9.cpp"
 		
 		$File	"core_dx9.cpp"
+		
+		$File	"post_nightvision.cpp"
+		$File   "post_cubic.cpp"
+		$File   "Post_ChromaticAberration.cpp"
 	}
-
+$Shaders	"of2shader_dx9_30.txt"
 	//$Shaders	"mapbase_dx9_20b.txt"
 	//$Shaders	"mapbase_dx9_30.txt"
 }

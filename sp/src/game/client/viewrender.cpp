@@ -82,6 +82,8 @@
 // Projective textures
 #include "C_Env_Projected_Texture.h"
 
+#include "ShaderEditor/ShaderEditorSystem.h"
+
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
 
@@ -107,8 +109,10 @@ extern bool g_bDumpRenderTargets;
 // Convars related to controlling rendering
 //-----------------------------------------------------------------------------
 static ConVar cl_maxrenderable_dist("cl_maxrenderable_dist", "3000", FCVAR_CHEAT, "Max distance from the camera at which things will be rendered" );
+ConVar r_nightvision( "r_nightvision", "1");
 
 ConVar r_entityclips( "r_entityclips", "1" ); //FIXME: Nvidia drivers before 81.94 on cards that support user clip planes will have problems with this, require driver update? Detect and disable?
+
 
 // Matches the version in the engine
 static ConVar r_drawopaqueworld( "r_drawopaqueworld", "1", FCVAR_CHEAT );
@@ -170,6 +174,8 @@ static ConVar mat_clipz( "mat_clipz", "1" );
 //-----------------------------------------------------------------------------
 static ConVar r_screenfademinsize( "r_screenfademinsize", "0" );
 static ConVar r_screenfademaxsize( "r_screenfademaxsize", "0" );
+
+
 static ConVar cl_drawmonitors( "cl_drawmonitors", "1" );
 static ConVar r_eyewaterepsilon( "r_eyewaterepsilon", "10.0f", FCVAR_CHEAT );
 
@@ -1497,6 +1503,12 @@ void CViewRender::ViewDrawScene( bool bDrew3dSkybox, SkyboxVisibility_t nSkyboxV
 
 	DrawWorldAndEntities( drawSkybox, view, nClearFlags, pCustomVisibility );
 
+	VisibleFogVolumeInfo_t fogVolumeInfo;
+	render->GetVisibleFogVolume(view.origin, &fogVolumeInfo);
+	WaterRenderInfo_t info;
+	DetermineWaterRenderInfo(fogVolumeInfo, info);
+	g_ShaderEditorSystem->CustomViewRender(&g_CurrentViewID, fogVolumeInfo, info);
+
 	// Disable fog for the rest of the stuff
 	DisableFog();
 
@@ -2148,6 +2160,7 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 		if ( ( bDrew3dSkybox = pSkyView->Setup( view, &nClearFlags, &nSkyboxVisible ) ) != false )
 		{
 			AddViewToScene( pSkyView );
+			g_ShaderEditorSystem->UpdateSkymask(false, view.x, view.y, view.width, view.height);
 		}
 		SafeRelease( pSkyView );
 #endif
@@ -2242,6 +2255,8 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 #endif
 		DrawViewModels( view, whatToDraw & RENDERVIEW_DRAWVIEWMODEL );
 
+		g_ShaderEditorSystem->UpdateSkymask(bDrew3dSkybox, view.x, view.y, view.width, view.height);
+
 		DrawUnderwaterOverlay();
 
 		PixelVisibility_EndScene();
@@ -2278,6 +2293,9 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 			}
 			pRenderContext.SafeRelease();
 		}
+
+		g_ShaderEditorSystem->CustomPostRender();
+
 
 		// And here are the screen-space effects
 
@@ -2543,17 +2561,35 @@ void CViewRender::RenderView( const CViewSetup &view, int nClearFlags, int whatT
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: Renders extra 2D effects in derived classes while the 2D view is on the stack
+// Purpose: Renders extra 2D effects in derived classes while the 2D view is on the stack   
 //-----------------------------------------------------------------------------
-void CViewRender::Render2DEffectsPreHUD( const CViewSetup &view )
-{
-}
+void CViewRender::Render2DEffectsPreHUD(const CViewSetup &view)
+	{
+		C_BasePlayer *player = C_BasePlayer::GetLocalPlayer();
 
+		if (!player)
+			return;
+
+		if (!player->IsEffectActive(EF_DIMLIGHT))
+			return;
+
+		CMatRenderContextPtr pRenderContext(materials);
+
+		if (r_nightvision.GetBool())
+		{
+			static CMaterialReference pNightVis("post_nv", TEXTURE_GROUP_OTHER);
+
+			UpdateScreenEffectTexture(0, view.x, view.y, view.width, view.height, true);
+			pRenderContext->DrawScreenSpaceQuad(pNightVis);
+		}
+
+	}
 //-----------------------------------------------------------------------------
 // Purpose: Renders extra 2D effects in derived classes while the 2D view is on the stack
 //-----------------------------------------------------------------------------
 void CViewRender::Render2DEffectsPostHUD( const CViewSetup &view )
 {
+	
 }
 
 
@@ -5138,7 +5174,6 @@ void CRendering3dView::DrawTranslucentRenderables( bool bInSkybox, bool bShadowD
 	render->SetBlend( 1 );
 }
 
-
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
@@ -6990,3 +7025,4 @@ void CRefractiveGlassView::Draw()
 	pRenderContext->ClearColor4ub( 0, 0, 0, 255 );
 	pRenderContext->Flush();
 }
+
